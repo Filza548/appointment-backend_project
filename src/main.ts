@@ -50,9 +50,9 @@ async function bootstrap() {
   const app = await createApp();
 
   const port = process.env.PORT || 3001;
-if(process.env.PRODUCTION === 'TRUE'){
+
   await app.listen(port);
-}
+
   
 
   console.log(`Server running on ${port}`);
