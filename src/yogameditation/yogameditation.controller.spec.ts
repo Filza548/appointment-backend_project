@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { YogameditationController } from './yogameditation.controller';
+import { YogaMeditationController } from './yogameditation.controller';
 
-describe('YogameditationController', () => {
-  let controller: YogameditationController;
+describe('YogaMeditationController', () => {
+  let controller: YogaMeditationController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [YogameditationController],
+      controllers: [YogaMeditationController],
     }).compile();
 
-    controller = module.get<YogameditationController>(YogameditationController);
+    controller = module.get<YogaMeditationController>(YogaMeditationController);
   });
 
   it('should be defined', () => {
