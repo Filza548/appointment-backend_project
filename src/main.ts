@@ -24,15 +24,13 @@ export async function bootstrap() {
     }),
   );
 
-  app.setGlobalPrefix('api'); 
-
   if (process.env.NODE_ENV !== 'production') {
-    const port = process.env.PORT || 3001;
-    await app.listen(port);
-    console.log(`Server running on port ${port}`);
-  } else {
-    await app.init();
-  }
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`Server running on port ${port}`);
+} else {
+  await app.init();
+}
 
   cachedServer = app.getHttpAdapter().getInstance();
   return cachedServer;
