@@ -1,15 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import * as express from 'express';
 
-let cachedServer: any;
+const expressApp = express();
 
 export async function bootstrap() {
-  if (cachedServer) {
-    return cachedServer;
-  }
-
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(
+    AppModule,
+    new ExpressAdapter(expressApp),
+  );
 
   app.enableCors({
     origin: process.env.FRONTEND_URL,
@@ -24,25 +25,24 @@ export async function bootstrap() {
     }),
   );
 
-  if (process.env.NODE_ENV !== 'production') {
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`Server running on port ${port}`);
-} else {
   await app.init();
+  return expressApp;
 }
 
-  cachedServer = app.getHttpAdapter().getInstance();
-  return cachedServer;
-}
-
-// Local computer par auto-start karne ke liye
+// Local computer ke liye start handler
 if (process.env.NODE_ENV !== 'production') {
-  bootstrap();
+  const startLocal = async () => {
+    const app = await NestFactory.create(AppModule);
+    app.enableCors({ origin: process.env.FRONTEND_URL, credentials: true });
+    const port = process.env.PORT || 3001;
+    await app.listen(port);
+    console.log(`Server running on port ${port}`);
+  };
+  startLocal();
 }
 
-// Vercel serverless request handler export
+// Vercel serverless gateway export
 export const handler = async (req: any, res: any) => {
-  const server = await bootstrap();
-  return server(req, res);
+  await bootstrap();
+  return expressApp(req, res);
 };
