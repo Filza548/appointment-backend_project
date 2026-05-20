@@ -44,18 +44,49 @@
 
 
 
-import { createApp } from './app';
+// import { createApp } from './app';
 
-async function bootstrap() {
-  const app = await createApp();
+// async function bootstrap() {
+//   const app = await createApp();
 
-  const port = process.env.PORT || 3001;
+//   const port = process.env.PORT || 3001;
 
-  await app.listen(port);
+//   await app.listen(port);
 
   
 
+//   console.log(`Server running on ${port}`);
+// }
+
+// bootstrap();
+
+
+
+import { createApp } from './app';
+
+let cachedApp: any = null;
+
+export async function bootstrap() {
+  if (cachedApp) {
+    return cachedApp;
+  }
+  
+  const app = await createApp();
+  cachedApp = app;
+  
+  // Vercel serverless environment mein PORT automatically milta hai
+  const port = process.env.PORT || 3001;
+  
+  await app.listen(port);
   console.log(`Server running on ${port}`);
+  
+  return app;
 }
 
-bootstrap();
+// Local development ke liye
+if (process.env.NODE_ENV !== 'production') {
+  bootstrap();
+}
+
+// Vercel ke liye export
+export default bootstrap;
