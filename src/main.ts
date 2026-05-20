@@ -1,16 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import * as express from 'express';
 
-const expressApp = express();
+let cachedApp: any;
 
 export async function bootstrap() {
-  const app = await NestFactory.create(
-    AppModule,
-    new ExpressAdapter(expressApp),
-  );
+  if (cachedApp) {
+    return cachedApp;
+  }
+
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     origin: process.env.FRONTEND_URL,
@@ -26,10 +25,11 @@ export async function bootstrap() {
   );
 
   await app.init();
-  return expressApp;
+  cachedApp = app.getHttpAdapter().getInstance();
+  return cachedApp;
 }
 
-// Local computer ke liye start handler
+// Local computer par auto-start ke liye
 if (process.env.NODE_ENV !== 'production') {
   const startLocal = async () => {
     const app = await NestFactory.create(AppModule);
@@ -41,8 +41,8 @@ if (process.env.NODE_ENV !== 'production') {
   startLocal();
 }
 
-// Vercel serverless gateway export
+// Vercel Serverless Gateway handler
 export const handler = async (req: any, res: any) => {
-  await bootstrap();
-  return expressApp(req, res);
+  const server = await bootstrap();
+  return server(req, res);
 };
