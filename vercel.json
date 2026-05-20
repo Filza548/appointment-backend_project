@@ -3,18 +3,7 @@
   "builds": [
     {
       "src": "dist/main.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "node_modules/typeorm/**",
-          "node_modules/@nestjs/typeorm/**",
-          "node_modules/pg/**",
-          "node_modules/reflect-metadata/**",
-          "node_modules/class-validator/**",
-          "node_modules/class-transformer/**",
-          "dist/**"
-        ]
-      }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
