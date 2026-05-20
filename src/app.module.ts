@@ -11,7 +11,7 @@ import { SalonspaModule } from './salonspa/salonspa.module';
 import { MakeUpModule } from './make-up/make-up.module';
 import { LegalconsultationModule } from './legalconsultation/legalconsultation.module';
 import { BusinessConsultationModule } from './business-consulting/business-consulting.module';
-import { SupabaseAuthGuard } from './auth/supabase-autH/supabase-auth.guard';
+import { SupabaseAuthGuard } from './auth/supabase-auth/supabase-auth.guard';
 import { SupabaseService } from './supabase/supabase.service';
 import { AuthModule } from './auth/auth.module';
 import { WebDevProjectModule } from './webdev/webdev.module';
