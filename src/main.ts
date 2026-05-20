@@ -1,92 +1,50 @@
-// // import { NestFactory } from '@nestjs/core';
-// // import { AppModule } from './app.module';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
-// // async function bootstrap() {
-// //   const app = await NestFactory.create(AppModule);
-// //   await app.listen(process.env.PORT ?? 3000);
-// // }
-// // bootstrap();
-
-
-// // backend/src/main.ts
-// import { NestFactory } from '@nestjs/core';
-// import { AppModule } from './app.module';
-// import { ValidationPipe } from '@nestjs/common'; // ✅ yeh add karo
-
-// async function bootstrap() {
-//   const app = await NestFactory.create(AppModule);
-  
-//   // CORS enable karo
-//   app.enableCors({
-//     origin: process.env.FRONTEND_URL, // Tumhara frontend ka URL
-//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//     credentials: true,
-//   });
-
-
-//   // ✅ Yeh add karo
-//   app.useGlobalPipes(new ValidationPipe({
-//     whitelist: true,
-//     forbidNonWhitelisted: true,
-//     transform: true,
-//   }));
-//   if(process.env.PRODUCTION === 'TRUE') {
-//     await app.listen(3001); // Backend 3001 par chalao (3000 par frontend hai)
-//   }else {
-//     export default app; // Testing ke liye app export karo
-//   }
-
-// }
-// bootstrap();
-
-
-
-
-
-
-// import { createApp } from './app';
-
-// async function bootstrap() {
-//   const app = await createApp();
-
-//   const port = process.env.PORT || 3001;
-
-//   await app.listen(port);
-
-  
-
-//   console.log(`Server running on ${port}`);
-// }
-
-// bootstrap();
-
-
-
-import { createApp } from './app';
-
-let cachedApp: any = null;
+let cachedServer: any;
 
 export async function bootstrap() {
-  if (cachedApp) {
-    return cachedApp;
+  if (cachedServer) {
+    return cachedServer;
   }
-  
-  const app = await createApp();
-  cachedApp = app;
-  
-  // Vercel serverless environment mein PORT automatically milta hai
-  const port = process.env.PORT || 3001;
-  
-  await app.listen(port);
-  console.log(`Server running on ${port}`);
-  
-  return app;
+
+  const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  app.setGlobalPrefix('api'); 
+
+  if (process.env.NODE_ENV !== 'production') {
+    const port = process.env.PORT || 3001;
+    await app.listen(port);
+    console.log(`Server running on port ${port}`);
+  } else {
+    await app.init();
+  }
+
+  cachedServer = app.getHttpAdapter().getInstance();
+  return cachedServer;
 }
 
-// Local development ke liye
+// Local computer par auto-start karne ke liye
 if (process.env.NODE_ENV !== 'production') {
   bootstrap();
 }
 
-// Vercel ke liye export
-export default bootstrap;
+// Vercel serverless request handler export
+export const handler = async (req: any, res: any) => {
+  const server = await bootstrap();
+  return server(req, res);
+};
