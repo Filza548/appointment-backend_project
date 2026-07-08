@@ -62,7 +62,7 @@ export async function bootstrap() {
 
   // CORS config: Frontend (Port 3000) ko allow karne ke liye
   app.enableCors({
-    origin: [process.env.FRONTEND_URL ,'http://localhost:3000'],
+    origin: [process.env.FRONTEND_URL ,'http://localhost:3000','https://frontend-eight-kappa-23.vercel.app'],
     credentials: true,
   });
 
